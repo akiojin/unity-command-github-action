@@ -8,7 +8,6 @@ For more information about the Unity command line, please refer to the [official
 - uses: akiojin/unity-command-github-action@v1
   with:
     build-target: 'iOS'
-    project-directory: ${{ github.workspace }}
 ```
 
 ### Additional arguments
@@ -28,7 +27,7 @@ For more information about the Unity command line, please refer to the [official
 |build-target|`true`|`string`||Allows the selection of an active build target before loading a project.<br><br>Possible options are:<br>Standalone, Win, Win64, OSXUniversal, Linux, Linux64, LinuxUniversal, iOS, Android, Web, WebStreamed, WebGL, XboxOne, PS4, WindowsStoreApps, Switch, N3DS, tvOS.|
 |execute-method|`false`|`string`|""|Execute the static method as soon as Unity opens the project, and after the optional Asset server update is complete.|
 |log-file|`false`|`string`|`"-"`|Specify where Unity writes the Editor or Windows/Linux/OSX standalone log file.<br>To output to the console, specify "-" for the path name.<br>On Windows, specify - option to make the output go to stdout, which is not the console by default.|
-|project-directory|`true`|`string`||Open the project at the given path. If the pathname contains spaces, enclose it in quotes.|
+|project-directory|`false`|`string`|$GITHUB_WORKSPACE|Open the project at the given path.|
 |unity-version|`false`|`string`|""|Specify the Unity version to be used.<br>If omitted, the project version is used.|
 
 
