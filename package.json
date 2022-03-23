@@ -10,8 +10,11 @@
     "type": "git",
     "url": "git+https://github.com/akiojin/unity-command-github-action.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "unity",
+    "unity3d"
+  ],
+  "author": "akiojin",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/akiojin/unity-command-github-action/issues"
