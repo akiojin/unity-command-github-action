@@ -3181,7 +3181,7 @@ async function Run() {
             .SetProjectPath(core.getInput('project-directory'))
             .SetExecuteMethod(core.getInput('execute-method'))
             .SetLogFile(core.getInput('log-file'));
-        if (core.getInput('additional-arguments') !== '') {
+        if (!!core.getInput('additional-arguments')) {
             builder.Append(core.getInput('additional-arguments').split(' '));
         }
         core.startGroup('Run Unity');
