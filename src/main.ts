@@ -6,8 +6,6 @@ import { Unity, UnityCommandBuilder } from '@akiojin/unity-command'
 async function Run()
 {
 	try {
-		const version = core.getInput('unity-version') || await Unity.GetVersion(core.getInput('project-directory'))
-
 		const builder = new UnityCommandBuilder()
 			.SetBuildTarget(core.getInput('build-target'))
 			.SetProjectPath(core.getInput('project-directory'))
@@ -18,6 +16,12 @@ async function Run()
 			builder.Append(core.getInput('additional-arguments').split(' '))
 		}
 	
+		var version = core.getInput('unity-version')
+	
+		if (version === 'project') {
+			version = await Unity.GetVersion(core.getInput('project-directory'))
+		}
+
 		core.startGroup('Run Unity')
 		await exec.exec(Unity.GetExecutePath(os.platform(), version), builder.Build())
 		core.endGroup()
