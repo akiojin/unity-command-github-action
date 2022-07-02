@@ -21,15 +21,4 @@ jobs:
 
       - name: ncc build
         run: |
-          npx @vercel/ncc build src/main.ts --license licenses.txt
-
-      - name: commit
-        run: |
-          git add dist/main.d.ts dist/licenses.txt dist/index.js
-          if ! git diff --exit-code --quiet
-          then
-            git config user.name gitbub-actions
-            git config user.email action@github.com
-            git commit -m 'commit dist'
-            git push
-          fi
+          npx @vercel/ncc build src/main.ts
