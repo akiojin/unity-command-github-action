@@ -11,8 +11,8 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@master
-      - uses: tool3/ncc@master
+      - uses: actions/checkout@v1
+      - uses: tool3/ncc@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           src: 'src/main.ts'
