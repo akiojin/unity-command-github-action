@@ -1,0 +1,22 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@master
+      - uses: tool3/ncc@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          src: 'src/main.ts'
+      - uses: actions/upload-artifact@v1
+        with:
+          name: dist
+          path: dist/
