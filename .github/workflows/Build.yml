@@ -15,4 +15,4 @@ jobs:
 
       - name: ncc build
         run: |
-          ncc build src/main.ts --license licenses.txt
+          npx @vercel/ncc build src/main.ts --license licenses.txt
