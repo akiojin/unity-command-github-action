@@ -25,6 +25,8 @@ jobs:
 
       - name: commit
         run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "action@github.com"
           git add dist/main.d.ts dist/licenses.txt dist/index.js
           git commit -a -m 'commit dist'
           git push origin HEAD:main
