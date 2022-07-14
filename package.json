@@ -22,10 +22,10 @@
   "homepage": "https://github.com/akiojin/unity-command-github-action#readme",
   "dependencies": {
     "@actions/core": "^1.9.0",
-    "@actions/exec": "^1.1.0",
-    "@akiojin/unity-command": "^1.0.8"
+    "@actions/exec": "^1.1.1",
+    "@akiojin/unity-command": "^1.0.9"
   },
   "devDependencies": {
-    "@types/node": "^18.0.3"
+    "@types/node": "^18.0.4"
   }
 }
