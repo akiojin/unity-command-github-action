@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as os from 'os'
-import { Unity, UnityCommandBuilder } from '@akiojin/unity-command'
+import { UnityUtils, UnityCommandBuilder } from '@akiojin/unity-command'
 
 async function Run()
 {
@@ -19,11 +19,11 @@ async function Run()
 		var version = core.getInput('unity-version')
 	
 		if (version === 'project') {
-			version = await Unity.GetVersion(core.getInput('project-directory'))
+			version = await UnityUtils.GetVersion(core.getInput('project-directory'))
 		}
 
 		core.startGroup('Run Unity')
-		await exec.exec(Unity.GetExecutePath(os.platform(), version), builder.Build())
+		await exec.exec(UnityUtils.GetExecutePath(os.platform(), version), builder.Build())
 		core.endGroup()
 	} catch (ex: any) {
 		core.setFailed(ex.message)
