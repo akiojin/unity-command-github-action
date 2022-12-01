@@ -26,6 +26,6 @@
     "@akiojin/unity-command": "^1.1.0"
   },
   "devDependencies": {
-    "@types/node": "^18.11.9"
+    "@types/node": "^18.11.10"
   }
 }
