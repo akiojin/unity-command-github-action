@@ -23,7 +23,7 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/exec": "^1.1.1",
-    "@akiojin/unity-command": "^1.1.0"
+    "@akiojin/unity-command": "^1.1.2"
   },
   "devDependencies": {
     "@types/node": "^18.13.0"
