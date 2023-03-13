@@ -1,4 +1,4 @@
-name: 'unity-build-github-action'
+name: 'Unity command execution'
 description: 'This action performs a Unity command line build.'
 inputs:
   additional-arguments:
