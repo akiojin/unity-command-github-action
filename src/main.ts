@@ -1,6 +1,5 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
-import * as os from 'os'
 import { UnityUtils, UnityCommandBuilder } from '@akiojin/unity-command'
 
 async function Run()
