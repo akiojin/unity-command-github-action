@@ -12,7 +12,7 @@ async function Run()
 			.SetLogFile(core.getInput('log-file'))
 
 		if (!!core.getInput('additional-arguments')) {
-			builder.Append(core.getInput('additional-arguments'))
+			builder.Append(core.getInput('additional-arguments').split(' '))
 		}
 	
 		var version = core.getInput('unity-version')
