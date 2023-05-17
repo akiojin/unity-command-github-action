@@ -15,13 +15,8 @@ async function Run()
 			builder.Append(core.getInput('additional-arguments').split(' '))
 		}
 	
-		var version = core.getInput('unity-version')
-
-		if (!version) {
-			throw new Error('Unity version is not specified.')
-		} else if (version === 'project') {
-			version = await UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'))
-		}
+		const version = core.getInput('unity-version') ||
+			await UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'))
 
 		core.startGroup('Run Unity')
 		await exec.exec(UnityUtils.GetUnityPath(version, core.getInput('install-directory')), builder.Build())
