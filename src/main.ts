@@ -6,7 +6,7 @@ async function Run()
 {
 	try {
 		const builder = new UnityCommandBuilder()
-			.SetBuildTarget(core.getInput('build-target'))
+			.SetBuildTarget(UnityUtils.GetBuildTarget())
 			.SetProjectPath(core.getInput('project-directory'))
 			.SetExecuteMethod(core.getInput('execute-method'))
 			.SetLogFile(core.getInput('log-file'))
