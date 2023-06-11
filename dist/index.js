@@ -6113,7 +6113,7 @@ class UnityUtils {
         const buildTarget = core.getInput('build-target');
         switch (buildTarget.toLowerCase()) {
             default:
-                throw Error(`Not supported platform. Target=${buildTarget}`);
+                return buildTarget;
             case 'ios':
             case 'iphone':
                 return 'iOS';
