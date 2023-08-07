@@ -7284,6 +7284,32 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 646:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class UnityBuildScriptHelper {
+    static GenerateUnityBuildScript() {
+        return `namespace unity_command_github_action
+{
+    using UnityEditor;
+    using UnityEngine;
+
+    public class UnityBuildScript
+    {
+        static void OpenProject()
+            => EditorApplication.Exit(0);
+    }
+}`;
+    }
+}
+exports["default"] = UnityBuildScriptHelper;
+
+
+/***/ }),
+
 /***/ 399:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -7312,25 +7338,54 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
+const fs = __importStar(__nccwpck_require__(292));
+const path_1 = __importDefault(__nccwpck_require__(17));
 const unity_command_1 = __nccwpck_require__(88);
+const UnityBuildScriptHelper_1 = __importDefault(__nccwpck_require__(646));
+async function GenerateUnityBuildScript() {
+    const script = UnityBuildScriptHelper_1.default.GenerateUnityBuildScript();
+    const buildScriptName = 'UnityBuildScript.cs';
+    const cs = path_1.default.join(core.getInput('project-directory'), 'Assets', 'Editor', buildScriptName);
+    await fs.mkdir(path_1.default.dirname(cs), { recursive: true });
+    await fs.writeFile(cs, script);
+    core.startGroup(`Generate "${buildScriptName}"`);
+    core.info(`${buildScriptName}:\n${script}`);
+    core.endGroup();
+}
+async function Execute(executeMethod) {
+    const builder = new unity_command_1.UnityCommandBuilder()
+        .SetBuildTarget(unity_command_1.UnityUtils.GetBuildTarget())
+        .SetProjectPath(core.getInput('project-directory'))
+        .SetExecuteMethod(executeMethod)
+        .SetLogFile(core.getInput('log-file'))
+        .EnablePackageManagerTraces();
+    if (!!core.getInput('additional-arguments')) {
+        builder.Append(core.getInput('additional-arguments'));
+    }
+    const version = core.getInput('unity-version') ||
+        await unity_command_1.UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'));
+    core.startGroup('Run Unity');
+    await exec.exec(unity_command_1.UnityUtils.GetUnityPath(version, core.getInput('install-directory')), builder.Build());
+    core.endGroup();
+}
+async function GetExecuteMethod() {
+    if (!core.getInput('execute-method')) {
+        await GenerateUnityBuildScript();
+        return 'unity_command_github_action.UnityBuildScript.OpenProject';
+    }
+    else {
+        return core.getInput('execute-method');
+    }
+}
 async function Run() {
     try {
-        const builder = new unity_command_1.UnityCommandBuilder()
-            .SetBuildTarget(unity_command_1.UnityUtils.GetBuildTarget())
-            .SetProjectPath(core.getInput('project-directory'))
-            .SetExecuteMethod(core.getInput('execute-method'))
-            .SetLogFile(core.getInput('log-file'));
-        if (!!core.getInput('additional-arguments')) {
-            builder.Append(core.getInput('additional-arguments').split(' '));
-        }
-        const version = core.getInput('unity-version') ||
-            await unity_command_1.UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'));
-        core.startGroup('Run Unity');
-        await exec.exec(unity_command_1.UnityUtils.GetUnityPath(version, core.getInput('install-directory')), builder.Build());
-        core.endGroup();
+        await Execute(await GetExecuteMethod());
     }
     catch (ex) {
         core.setFailed(ex.message);
@@ -7378,6 +7433,14 @@ module.exports = require("events");
 
 "use strict";
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ 292:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("fs/promises");
 
 /***/ }),
 
