@@ -6,7 +6,6 @@ inputs:
       Specify additional required arguments.
       Arguments are specified with a space between them.
     required: false
-    default: ''
   build-target:
     description: >
       Allows the selection of an active build target before loading a project.
@@ -18,14 +17,13 @@ inputs:
     description: >
       Execute the static method as soon as Unity opens the project,
       and after the optional Asset server update is complete.
-    required: true
+    required: false
   install-directory:
     description: >
       If the Unity installation location is not the default, specify the path in this parameter.
       The path must exclude the version number.
       ex) E:\Unity\
     required: false
-    default: ''
   log-file:
     description: >
       Specify where Unity writes the Editor or Windows/Linux/OSX standalone log file.
