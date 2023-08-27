@@ -19,7 +19,7 @@ async function GenerateUnityBuildScript(): Promise<void>
     core.endGroup()
 }
 
-async function Execute(executeMethod: string): Promise<void>
+async function Execute(title: string, executeMethod: string): Promise<void>
 {
     const builder = new UnityCommandBuilder()
         .SetBuildTarget(UnityUtils.GetBuildTarget())
@@ -35,7 +35,7 @@ async function Execute(executeMethod: string): Promise<void>
     const version = core.getInput('unity-version') ||
         await UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'))
 
-    core.startGroup('Run Unity')
+    core.startGroup(`Run ${title}`)
     const path = UnityUtils.GetUnityPath(version, core.getInput('install-directory'))
     await exec.exec(path, builder.Build())
     core.endGroup()
@@ -56,10 +56,10 @@ async function Run()
 		await GenerateUnityBuildScript()
 
         if (core.getInput('symbols')) {
-            await Execute(await 'unity_command_github_action.UnityBuildScript.PreOpen')
+            await Execute('PreOpen', await 'unity_command_github_action.UnityBuildScript.PreOpen')
         }
 
-		await Execute(await GetExecuteMethod())
+		await Execute('Execute', await GetExecuteMethod())
 	} catch (ex: any) {
 		core.setFailed(ex.message)
 	}

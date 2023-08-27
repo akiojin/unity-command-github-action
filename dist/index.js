@@ -7370,7 +7370,7 @@ async function GenerateUnityBuildScript() {
     core.info(`${buildScriptName}:\n${script}`);
     core.endGroup();
 }
-async function Execute(executeMethod) {
+async function Execute(title, executeMethod) {
     const builder = new unity_command_1.UnityCommandBuilder()
         .SetBuildTarget(unity_command_1.UnityUtils.GetBuildTarget())
         .SetProjectPath(core.getInput('project-directory'))
@@ -7382,7 +7382,7 @@ async function Execute(executeMethod) {
     }
     const version = core.getInput('unity-version') ||
         await unity_command_1.UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'));
-    core.startGroup('Run Unity');
+    core.startGroup(`Run ${title}`);
     const path = unity_command_1.UnityUtils.GetUnityPath(version, core.getInput('install-directory'));
     await exec.exec(path, builder.Build());
     core.endGroup();
@@ -7399,9 +7399,9 @@ async function Run() {
     try {
         await GenerateUnityBuildScript();
         if (core.getInput('symbols')) {
-            await Execute(await 'unity_command_github_action.UnityBuildScript.PreOpen');
+            await Execute('PreOpen', await 'unity_command_github_action.UnityBuildScript.PreOpen');
         }
-        await Execute(await GetExecuteMethod());
+        await Execute('Execute', await GetExecuteMethod());
     }
     catch (ex) {
         core.setFailed(ex.message);
