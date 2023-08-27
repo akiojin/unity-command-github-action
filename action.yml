@@ -36,6 +36,12 @@ inputs:
       Open the project at the given path. If the pathname contains spaces, enclose it in quotes.
     required: false
     default: ${{ github.workspace }}
+  symbols:
+    description: >
+      Specify additional definitions.
+      Separate each definition with a semicolon.
+      ex) DEBUG;TEST;DEVELOPMENT
+    required: false
   unity-version:
     description: >
       Specify the Unity version to be used.

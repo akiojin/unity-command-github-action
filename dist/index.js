@@ -7291,14 +7291,26 @@ exports["default"] = _default;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 class UnityBuildScriptHelper {
-    static GenerateUnityBuildScript() {
+    static GenerateUnityBuildScript(symbols) {
         return `namespace unity_command_github_action
 {
+    using System.Linq;
     using UnityEditor;
-    using UnityEngine;
+    using UnityEditor.Build;
 
     public class UnityBuildScript
     {
+        static void PreOpen()
+        {
+            var target = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+            var strings = $"{PlayerSettings.GetScriptingDefineSymbols(target)};${symbols}";
+            var symbols = strings.Split(';').Where(s => !string.IsNullOrEmpty(s)).Distinct().ToArray();
+
+            PlayerSettings.SetScriptingDefineSymbols(target, string.Join(";", symbols));
+
+            EditorApplication.Exit(0);
+        }
+
         static void OpenProject()
             => EditorApplication.Exit(0);
     }
@@ -7349,7 +7361,7 @@ const path_1 = __importDefault(__nccwpck_require__(17));
 const unity_command_1 = __nccwpck_require__(88);
 const UnityBuildScriptHelper_1 = __importDefault(__nccwpck_require__(646));
 async function GenerateUnityBuildScript() {
-    const script = UnityBuildScriptHelper_1.default.GenerateUnityBuildScript();
+    const script = UnityBuildScriptHelper_1.default.GenerateUnityBuildScript(core.getInput('symbols'));
     const buildScriptName = 'UnityBuildScript.cs';
     const cs = path_1.default.join(core.getInput('project-directory'), 'Assets', 'Editor', buildScriptName);
     await fs.mkdir(path_1.default.dirname(cs), { recursive: true });
@@ -7371,12 +7383,12 @@ async function Execute(executeMethod) {
     const version = core.getInput('unity-version') ||
         await unity_command_1.UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'));
     core.startGroup('Run Unity');
-    await exec.exec(unity_command_1.UnityUtils.GetUnityPath(version, core.getInput('install-directory')), builder.Build());
+    const path = unity_command_1.UnityUtils.GetUnityPath(version, core.getInput('install-directory'));
+    await exec.exec(path, builder.Build());
     core.endGroup();
 }
 async function GetExecuteMethod() {
     if (!core.getInput('execute-method')) {
-        await GenerateUnityBuildScript();
         return 'unity_command_github_action.UnityBuildScript.OpenProject';
     }
     else {
@@ -7385,6 +7397,10 @@ async function GetExecuteMethod() {
 }
 async function Run() {
     try {
+        await GenerateUnityBuildScript();
+        if (!core.getInput('symbols')) {
+            await Execute(await 'unity_command_github_action.UnityBuildScript.PreOpen');
+        }
         await Execute(await GetExecuteMethod());
     }
     catch (ex) {

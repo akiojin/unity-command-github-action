@@ -7,7 +7,7 @@ import UnityBuildScriptHelper from './UnityBuildScriptHelper'
 
 async function GenerateUnityBuildScript(): Promise<void>
 {
-    const script = UnityBuildScriptHelper.GenerateUnityBuildScript()
+    const script = UnityBuildScriptHelper.GenerateUnityBuildScript(core.getInput('symbols'))
     const buildScriptName = 'UnityBuildScript.cs'
     const cs = path.join(core.getInput('project-directory'), 'Assets', 'Editor', buildScriptName)
 
@@ -36,14 +36,14 @@ async function Execute(executeMethod: string): Promise<void>
         await UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'))
 
     core.startGroup('Run Unity')
-    await exec.exec(UnityUtils.GetUnityPath(version, core.getInput('install-directory')), builder.Build())
+    const path = UnityUtils.GetUnityPath(version, core.getInput('install-directory'))
+    await exec.exec(path, builder.Build())
     core.endGroup()
 }
 
 async function GetExecuteMethod(): Promise<string>
 {
 	if (!core.getInput('execute-method')) {
-		await GenerateUnityBuildScript()
 		return 'unity_command_github_action.UnityBuildScript.OpenProject'
 	} else {
 		return core.getInput('execute-method')
@@ -53,6 +53,12 @@ async function GetExecuteMethod(): Promise<string>
 async function Run()
 {
 	try {
+		await GenerateUnityBuildScript()
+
+        if (!core.getInput('symbols')) {
+            await Execute(await 'unity_command_github_action.UnityBuildScript.PreOpen')
+        }
+
 		await Execute(await GetExecuteMethod())
 	} catch (ex: any) {
 		core.setFailed(ex.message)
