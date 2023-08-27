@@ -55,7 +55,7 @@ async function Run()
 	try {
 		await GenerateUnityBuildScript()
 
-        if (!core.getInput('symbols')) {
+        if (core.getInput('symbols')) {
             await Execute(await 'unity_command_github_action.UnityBuildScript.PreOpen')
         }
 
