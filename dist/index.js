@@ -7291,26 +7291,14 @@ exports["default"] = _default;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 class UnityBuildScriptHelper {
-    static GenerateUnityBuildScript(symbols) {
+    static GenerateUnityBuildScript() {
         return `namespace unity_command_github_action
 {
-    using System.Linq;
     using UnityEditor;
     using UnityEditor.Build;
 
     public class UnityBuildScript
     {
-        static void PreOpen()
-        {
-            var target = NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-            var strings = $"{PlayerSettings.GetScriptingDefineSymbols(target)};${symbols}";
-            var symbols = strings.Split(';').Where(s => !string.IsNullOrEmpty(s)).Distinct().ToArray();
-
-            PlayerSettings.SetScriptingDefineSymbols(target, string.Join(";", symbols));
-
-            EditorApplication.Exit(0);
-        }
-
         static void OpenProject()
             => EditorApplication.Exit(0);
     }
@@ -7360,8 +7348,50 @@ const fs = __importStar(__nccwpck_require__(292));
 const path_1 = __importDefault(__nccwpck_require__(17));
 const unity_command_1 = __nccwpck_require__(88);
 const UnityBuildScriptHelper_1 = __importDefault(__nccwpck_require__(646));
+function GetBuildTarget() {
+    const buildTarget = core.getInput('build-target');
+    switch (buildTarget.toLowerCase()) {
+        default:
+            return buildTarget;
+        case 'ios':
+        case 'iphone':
+            return 'iPhone';
+        case 'android':
+            return 'Android';
+        case 'windows':
+        case 'win':
+        case 'win64':
+        case 'mac':
+        case 'macos':
+        case 'osx':
+        case 'osxuniversal':
+            return 'Standalone';
+    }
+}
+async function ReplaceDefineSymbols() {
+    const target = GetBuildTarget();
+    const symbols = core.getInput('symbols');
+    const filePath = `${core.getInput('project-directory')}/ProjectSettings/ProjectSettings.asset`;
+    const contents = await fs.readFile(filePath, 'utf-8');
+    const updatedContents = [];
+    let reachedSection = false;
+    for (const line of contents.split('\n')) {
+        const trim = line.trim();
+        if (trim.startsWith('scriptingDefineSymbols:')) {
+            reachedSection = true;
+        }
+        if (reachedSection && trim.startsWith(`${target}:`)) {
+            updatedContents.push(`${line};${symbols}`);
+            reachedSection = false;
+        }
+        else {
+            updatedContents.push(line);
+        }
+    }
+    await fs.writeFile(filePath, updatedContents.join('\n'), 'utf-8');
+}
 async function GenerateUnityBuildScript() {
-    const script = UnityBuildScriptHelper_1.default.GenerateUnityBuildScript(core.getInput('symbols'));
+    const script = UnityBuildScriptHelper_1.default.GenerateUnityBuildScript();
     const buildScriptName = 'UnityBuildScript.cs';
     const cs = path_1.default.join(core.getInput('project-directory'), 'Assets', 'Editor', buildScriptName);
     await fs.mkdir(path_1.default.dirname(cs), { recursive: true });
@@ -7399,7 +7429,7 @@ async function Run() {
     try {
         await GenerateUnityBuildScript();
         if (core.getInput('symbols')) {
-            await Execute('PreOpen', await 'unity_command_github_action.UnityBuildScript.PreOpen');
+            ReplaceDefineSymbols();
         }
         await Execute('Execute', await GetExecuteMethod());
     }
