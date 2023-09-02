@@ -5,57 +5,6 @@ import path from 'path'
 import { UnityUtils, UnityCommandBuilder } from '@akiojin/unity-command'
 import UnityBuildScriptHelper from './UnityBuildScriptHelper'
 
-function GetBuildTarget(): string
-{
-    const buildTarget = core.getInput('build-target')
-
-    switch (buildTarget.toLowerCase()) {
-    default:
-        return buildTarget
-    case 'ios':
-    case 'iphone':
-        return 'iPhone'
-    case 'android':
-        return 'Android'
-    case 'windows':
-    case 'win':
-    case 'win64':
-    case 'mac':
-    case 'macos':
-    case 'osx':
-    case 'osxuniversal':
-        return 'Standalone'
-    }
-}
-
-async function ReplaceDefineSymbols(): Promise<void>
-{
-    const target = GetBuildTarget()
-    const symbols = core.getInput('symbols')
-    const filePath = `${core.getInput('project-directory')}/ProjectSettings/ProjectSettings.asset`
-    const contents = await fs.readFile(filePath, 'utf-8')
-    const updatedContents = []
-
-    let reachedSection = false
-
-    for (const line of contents.split('\n')) {
-        const trim = line.trim()
-
-        if (trim.startsWith('scriptingDefineSymbols:')) {
-            reachedSection = true
-        }
-
-        if (reachedSection && trim.startsWith(`${target}:`)) {
-            updatedContents.push(`${line};${symbols}`)
-            reachedSection = false
-        } else {
-            updatedContents.push(line)
-        }
-    }
-
-    await fs.writeFile(filePath, updatedContents.join('\n'), 'utf-8')
-}
-
 async function GenerateUnityBuildScript(): Promise<void>
 {
     const script = UnityBuildScriptHelper.GenerateUnityBuildScript()
@@ -107,7 +56,10 @@ async function Run()
 		await GenerateUnityBuildScript()
 
         if (core.getInput('symbols')) {
-            ReplaceDefineSymbols()
+            UnityUtils.AddDefineSymbols(
+                core.getInput('build-target'),
+                core.getInput('symbols'),
+                core.getInput('project-directory'))
         }
 
 		await Execute('Execute', await GetExecuteMethod())

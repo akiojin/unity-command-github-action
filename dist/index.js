@@ -6196,6 +6196,71 @@ class UnityUtils {
         }
         return result.groups.version;
     }
+    static GetPlatformName(target) {
+        switch (target.toLowerCase()) {
+            default:
+                return target;
+            case 'ios':
+            case 'iphone':
+                return 'iPhone';
+            case 'android':
+                return 'Android';
+            case 'windows':
+            case 'win':
+            case 'win64':
+            case 'mac':
+            case 'macos':
+            case 'osx':
+            case 'osxuniversal':
+                return 'Standalone';
+        }
+    }
+    /**
+     *
+     * @param buildTarget
+     * @param symbols
+     * @param projectDirectory
+     * @returns
+     */
+    static async AddDefineSymbols(buildTarget, symbols, projectDirectory) {
+        const target = UnityUtils.GetPlatformName(buildTarget);
+        const filePath = `${projectDirectory}/ProjectSettings/ProjectSettings.asset`;
+        const contents = await fs_1.promises.readFile(filePath, 'utf-8');
+        const updatedContents = [];
+        let reachedSection = false;
+        for (const line of contents.split('\n')) {
+            const trim = line.trim();
+            if (trim.startsWith('scriptingDefineSymbols:')) {
+                reachedSection = true;
+            }
+            if (reachedSection && trim.startsWith(target)) {
+                updatedContents.push(`${line};${symbols}`);
+                reachedSection = false;
+            }
+            else {
+                updatedContents.push(line);
+            }
+        }
+        const result = updatedContents.join('\n');
+        await fs_1.promises.writeFile(filePath, result, 'utf-8');
+        return result;
+    }
+    static async GetDefineSymbols(buildTarget, projectDirectory) {
+        const target = UnityUtils.GetPlatformName(buildTarget);
+        const filePath = `${projectDirectory}/ProjectSettings/ProjectSettings.asset`;
+        const contents = await fs_1.promises.readFile(filePath, 'utf-8');
+        let reachedSection = false;
+        for (const line of contents.split('\n')) {
+            const trim = line.trim();
+            if (trim.startsWith('scriptingDefineSymbols:')) {
+                reachedSection = true;
+            }
+            if (reachedSection && trim.startsWith(target)) {
+                return trim.split(':')[1].trim();
+            }
+        }
+        throw new Error('Define symbols not found.');
+    }
 }
 exports["default"] = UnityUtils;
 
@@ -7348,48 +7413,6 @@ const fs = __importStar(__nccwpck_require__(292));
 const path_1 = __importDefault(__nccwpck_require__(17));
 const unity_command_1 = __nccwpck_require__(88);
 const UnityBuildScriptHelper_1 = __importDefault(__nccwpck_require__(646));
-function GetBuildTarget() {
-    const buildTarget = core.getInput('build-target');
-    switch (buildTarget.toLowerCase()) {
-        default:
-            return buildTarget;
-        case 'ios':
-        case 'iphone':
-            return 'iPhone';
-        case 'android':
-            return 'Android';
-        case 'windows':
-        case 'win':
-        case 'win64':
-        case 'mac':
-        case 'macos':
-        case 'osx':
-        case 'osxuniversal':
-            return 'Standalone';
-    }
-}
-async function ReplaceDefineSymbols() {
-    const target = GetBuildTarget();
-    const symbols = core.getInput('symbols');
-    const filePath = `${core.getInput('project-directory')}/ProjectSettings/ProjectSettings.asset`;
-    const contents = await fs.readFile(filePath, 'utf-8');
-    const updatedContents = [];
-    let reachedSection = false;
-    for (const line of contents.split('\n')) {
-        const trim = line.trim();
-        if (trim.startsWith('scriptingDefineSymbols:')) {
-            reachedSection = true;
-        }
-        if (reachedSection && trim.startsWith(`${target}:`)) {
-            updatedContents.push(`${line};${symbols}`);
-            reachedSection = false;
-        }
-        else {
-            updatedContents.push(line);
-        }
-    }
-    await fs.writeFile(filePath, updatedContents.join('\n'), 'utf-8');
-}
 async function GenerateUnityBuildScript() {
     const script = UnityBuildScriptHelper_1.default.GenerateUnityBuildScript();
     const buildScriptName = 'UnityBuildScript.cs';
@@ -7429,7 +7452,7 @@ async function Run() {
     try {
         await GenerateUnityBuildScript();
         if (core.getInput('symbols')) {
-            ReplaceDefineSymbols();
+            unity_command_1.UnityUtils.AddDefineSymbols(core.getInput('build-target'), core.getInput('symbols'), core.getInput('project-directory'));
         }
         await Execute('Execute', await GetExecuteMethod());
     }
