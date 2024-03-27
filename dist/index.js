@@ -5871,10 +5871,29 @@ class UnityCommandBuilder extends argument_builder_1.ArgumentBuilder {
      */
     constructor() {
         super();
-        this.Append('-quit')
-            .Append('-batchmode')
-            .Append('-nographics')
+        this.Append('-batchmode')
             .Append('-silent-crashes');
+    }
+    /**
+     * Exit the Unity editor after the command has finished executing.
+     *
+     * @returns this
+     */
+    Quit() {
+        this.Append('-quit');
+        return this;
+    }
+    /**
+     * When you run this in batch mode, Unity doesn’t initialize the graphics device.
+     * You can then run automated workflows on machines that don’t have a GPU.
+     * Automated workflows only work when you have a window in focus, otherwise you can’t send simulated input commands.
+     * -nographics does not allow you to bake GI, because Enlighten requires a GPU for Meta Pass rendering.
+     *
+     * @returns this
+     */
+    NoGraphics() {
+        this.Append('-nographics');
+        return this;
     }
     /**
      * Disable Graphics Processing Unit (GPU) skinning at startup.
@@ -6128,6 +6147,8 @@ class UnityUtils {
             case 'osx':
             case 'osxuniversal':
                 return 'OSXUniversal';
+            case 'switch':
+                return 'Switch';
         }
     }
     /**
@@ -7430,7 +7451,10 @@ async function Execute(title, executeMethod) {
         .SetExecuteMethod(executeMethod)
         .SetLogFile(core.getInput('log-file'))
         .EnablePackageManagerTraces();
-    if (!!core.getInput('additional-arguments')) {
+    if (!core.getBooleanInput('enable-bake')) {
+        builder.NoGraphics();
+    }
+    if (core.getInput('additional-arguments')) {
         builder.Append(core.getInput('additional-arguments'));
     }
     const version = core.getInput('unity-version') ||

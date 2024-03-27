@@ -7,65 +7,69 @@ import UnityBuildScriptHelper from './UnityBuildScriptHelper'
 
 async function GenerateUnityBuildScript(): Promise<void>
 {
-    const script = UnityBuildScriptHelper.GenerateUnityBuildScript()
-    const buildScriptName = 'UnityBuildScript.cs'
-    const cs = path.join(core.getInput('project-directory'), 'Assets', 'Editor', buildScriptName)
+  const script = UnityBuildScriptHelper.GenerateUnityBuildScript()
+  const buildScriptName = 'UnityBuildScript.cs'
+  const cs = path.join(core.getInput('project-directory'), 'Assets', 'Editor', buildScriptName)
 
-    await fs.mkdir(path.dirname(cs), {recursive: true})
-    await fs.writeFile(cs, script)
+  await fs.mkdir(path.dirname(cs), { recursive: true })
+  await fs.writeFile(cs, script)
 
-    core.startGroup(`Generate "${buildScriptName}"`)
-    core.info(`${buildScriptName}:\n${script}`)
-    core.endGroup()
+  core.startGroup(`Generate "${buildScriptName}"`)
+  core.info(`${buildScriptName}:\n${script}`)
+  core.endGroup()
 }
 
 async function Execute(title: string, executeMethod: string): Promise<void>
 {
-    const builder = new UnityCommandBuilder()
-        .SetBuildTarget(UnityUtils.GetBuildTarget())
-        .SetProjectPath(core.getInput('project-directory'))
-		.SetExecuteMethod(executeMethod)
-        .SetLogFile(core.getInput('log-file'))
-        .EnablePackageManagerTraces()
+  const builder = new UnityCommandBuilder()
+    .SetBuildTarget(UnityUtils.GetBuildTarget())
+    .SetProjectPath(core.getInput('project-directory'))
+    .SetExecuteMethod(executeMethod)
+    .SetLogFile(core.getInput('log-file'))
+    .EnablePackageManagerTraces()
 
-    if (!!core.getInput('additional-arguments')) {
-        builder.Append(core.getInput('additional-arguments'))
-    }
+  if (!core.getBooleanInput('enable-bake')) {
+    builder.NoGraphics()
+  }
 
-    const version = core.getInput('unity-version') ||
-        await UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'))
+  if (core.getInput('additional-arguments')) {
+    builder.Append(core.getInput('additional-arguments'))
+  }
 
-    core.startGroup(`Run ${title}`)
-    const path = UnityUtils.GetUnityPath(version, core.getInput('install-directory'))
-    await exec.exec(path, builder.Build())
-    core.endGroup()
+  const version = core.getInput('unity-version') ||
+    await UnityUtils.GetCurrentUnityVersion(core.getInput('project-directory'))
+
+  core.startGroup(`Run ${title}`)
+  const path = UnityUtils.GetUnityPath(version, core.getInput('install-directory'))
+  await exec.exec(path, builder.Build())
+  core.endGroup()
 }
 
 async function GetExecuteMethod(): Promise<string>
 {
-	if (!core.getInput('execute-method')) {
-		return 'unity_command_github_action.UnityBuildScript.OpenProject'
-	} else {
-		return core.getInput('execute-method')
-	}
+  if (!core.getInput('execute-method')) {
+    return 'unity_command_github_action.UnityBuildScript.OpenProject'
+  } else {
+    return core.getInput('execute-method')
+  }
 }
 
 async function Run()
 {
-	try {
-		await GenerateUnityBuildScript()
+  try {
+    await GenerateUnityBuildScript()
 
-        if (core.getInput('symbols')) {
-            UnityUtils.AddDefineSymbols(
-                core.getInput('build-target'),
-                core.getInput('symbols'),
-                core.getInput('project-directory'))
-        }
+    if (core.getInput('symbols')) {
+      UnityUtils.AddDefineSymbols(
+        core.getInput('build-target'),
+        core.getInput('symbols'),
+        core.getInput('project-directory'))
+    }
 
-		await Execute('Execute', await GetExecuteMethod())
-	} catch (ex: any) {
-		core.setFailed(ex.message)
-	}
+    await Execute('Execute', await GetExecuteMethod())
+  } catch (ex: any) {
+    core.setFailed(ex.message)
+  }
 }
 
 Run()
