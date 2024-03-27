@@ -13,6 +13,11 @@ inputs:
       Possible options are:
       Standalone, Win, Win64, OSXUniversal, Linux, Linux64, LinuxUniversal, iOS, Android, Web, WebStreamed, WebGL, XboxOne, PS4, WindowsStoreApps, Switch, N3DS, tvOS.
     required: true
+  enable-bake:
+    description: >
+      Specify true to bake at build time.
+    required: false
+    default: false
   execute-method:
     description: >
       Execute the static method as soon as Unity opens the project,
@@ -49,7 +54,7 @@ inputs:
     required: false
     default: ''
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 branding:
   icon: "box"
