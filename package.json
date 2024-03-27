@@ -1,6 +1,6 @@
 {
   "name": "unity-command-github-action",
-  "version": "1.1.5",
+  "version": "1.1.8",
   "description": "This action executes the Unity command line.",
   "main": "dist/index.js",
   "scripts": {
@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/akiojin/unity-command-github-action#readme",
   "devDependencies": {
-    "@actions/core": "1.10.0",
+    "@actions/core": "1.10.1",
     "@actions/exec": "1.1.1",
     "@akiojin/unity-command": "1.4.1",
-    "@commitlint/cli": "17.7.1",
+    "@commitlint/cli": "17.7.2",
     "@commitlint/config-conventional": "17.7.0",
-    "@types/node": "20.5.7",
+    "@types/node": "20.5.8",
     "@vercel/ncc": "0.36.1",
     "husky": "8.0.3",
-    "rimraf": "5.0.1",
+    "rimraf": "5.0.5",
     "typescript": "5.2.2"
   },
   "private": true
