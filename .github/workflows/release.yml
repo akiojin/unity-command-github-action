@@ -31,6 +31,8 @@ jobs:
         run: |
           VERSION=$(jq -r .version package.json)
           
+          echo "Tag version: $VERSION"
+
           MAJOR_VERSION=$(echo "$VERSION" | grep -oE "^[0-9]+")
           TAG="v$MAJOR_VERSION"
 
