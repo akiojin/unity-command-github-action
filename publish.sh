@@ -30,14 +30,6 @@ if [ "$BRANCH" != "develop" ]; then
     exit 1
 fi
 
-git pull origin main
-git merge main --no-commit --no-ff
-
-if git status | grep 'Unmerged paths'; then
-  echo "Merge conflict detected. Please resolve the conflicts and try again."
-  exit 1
-fi
-
 VERSION=$(npm version $1 --no-git-tag-version)
 
 if ! git pull; then
