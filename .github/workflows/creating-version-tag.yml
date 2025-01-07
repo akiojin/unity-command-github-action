@@ -39,6 +39,6 @@ jobs:
           fi
 
           git tag "$TAG"
-          git push origin "$TAG"
+          git push --force origin "$TAG"
 
           echo "Tag $TAG has been created and pushed successfully."
