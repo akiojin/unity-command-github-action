@@ -53,7 +53,7 @@ The parameter `-v --param="Test"` is passed when executing that build script.
 
 Any contributions made under this project will be governed by the [MIT License][3].
 
-[0]: https://github.com/akiojin/unity-command-github-action/actions/workflows/Build.yml/badge.svg
+[0]: https://github.com/akiojin/unity-command-github-action/actions/workflows/build.yml/badge.svg
 [1]: https://docs.unity3d.com/2022.3/Documentation/Manual/EditorCommandLineArguments.html
 [2]: https://github.com/akiojin/unity-command-github-action/blob/main/action.yml
 [3]: https://github.com/akiojin/unity-command-github-action/blob/main/LICENSE
