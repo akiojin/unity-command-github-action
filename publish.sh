@@ -46,7 +46,7 @@ fi
 
 git add package.json package-lock.json
 git commit -m "bump: $VERSION"
-git push
+git push --follow-tags
 
 if [ "$1" != "prerelease" ]; then
     if ! gh pr create --base main --head develop --title "bump: $VERSION" --body "bump: $VERSION"; then
