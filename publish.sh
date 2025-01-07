@@ -49,4 +49,5 @@ if ! gh pr create --base main --head release/$VERSION --title "bump: $VERSION" -
 fi
 
 git switch develop
+git merge release/$VERSION --no-ff --no-edit
 git push --follow-tags
