@@ -21,8 +21,7 @@ jobs:
 
       - name: ✅ Auto merge
         run: |
-          git merge feature-branch
-          git push origin main
+          gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ github.token }}
