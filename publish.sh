@@ -37,6 +37,14 @@ if [ "$BRANCH" != "develop" ]; then
     exit 1
 fi
 
+git pull origin main
+git merge main --no-commit --no-ff
+
+if git status | grep 'Unmerged paths'; then
+  echo "Merge conflict detected. Please resolve the conflicts and try again."
+  exit 1
+fi
+
 VERSION=$(npm version $1 --no-git-tag-version)
 
 if ! git pull; then
@@ -44,11 +52,16 @@ if ! git pull; then
     exit 1
 fi
 
+git branch release/$VERSION
+git switch release/$VERSION
 git add package.json package-lock.json
 git commit -m "bump: $VERSION"
-git push --follow-tags
+git push --follow-tags --set-upstream origin release/$VERSION
 
 if ! gh pr create --base main --head develop --title "bump: $VERSION" --body "bump: $VERSION"; then
     echo "Error: Failed to create a pull request."
     exit 1
 fi
+
+git switch develop
+git push --follow-tags
