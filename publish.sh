@@ -48,9 +48,7 @@ git add package.json package-lock.json
 git commit -m "bump: $VERSION"
 git push --follow-tags
 
-if [ "$1" != "prerelease" ]; then
-    if ! gh pr create --base main --head develop --title "bump: $VERSION" --body "bump: $VERSION"; then
-        echo "Error: Failed to create a pull request."
-        exit 1
-    fi
+if ! gh pr create --base main --head develop --title "bump: $VERSION" --body "bump: $VERSION"; then
+    echo "Error: Failed to create a pull request."
+    exit 1
 fi
