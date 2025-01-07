@@ -64,3 +64,4 @@ if ! gh pr create --base main --head develop --title "bump: $VERSION" --body "bu
 fi
 
 git switch develop
+git push --follow-tags
