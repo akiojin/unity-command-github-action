@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/akiojin/unity-command-github-action#readme",
   "devDependencies": {
-    "@actions/core": "1.11.1",
+    "@actions/core": "2.0.1",
     "@actions/exec": "1.1.1",
     "@akiojin/unity-command": "1.4.3",
     "@types/node": "22.15.29",
